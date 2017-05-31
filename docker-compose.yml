@@ -1,0 +1,26 @@
+version: "2"
+services:
+  mongo:
+    image: mongo:3.2
+    hostname: mongo
+  web:
+    image: python:3-onbuild
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    command: bash -c "./prepare.sh && ./run_web.sh"
+    ports:
+      - "8000:8000"
+    links:
+      - mongo
+  celery:
+    image: python:3-onbuild
+    hostname: celery
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    command: bash -c "./prepare.sh && ./run_celery.sh && sleep infinity"
+    volumes:
+      - /var/log/celery:/var/log/celery
+    links:
+      - mongo
